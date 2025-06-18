@@ -1,18 +1,90 @@
 const express = require('express');
 const User = require('../models/User');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const sendEmail = require('../utils/mailer')
 const PDFDocument = require('pdfkit')
 const path = require('path')
 const router = express.Router();
 
+// Middleware to verify JWT token
+const verifyToken = (req, res, next) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    
+    if (!token) {
+        return res.status(401).json({ msg: 'No token provided ❌' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+        req.user = decoded;
+        next();
+    } catch (err) {
+        return res.status(401).json({ msg: 'Invalid token ❌' });
+    }
+};
+
+// Admin login (this should NOT be protected by verifyToken)
+router.post('/login', async (req, res) => {
+    const { phoneNumber, password } = req.body;
+    
+    try {
+        const user = await User.findOne({ phoneNumber });
+        if (!user) return res.status(400).json({ msg: 'User not found ❌' });
+        
+        if (!user.isAdmin) return res.status(403).json({ msg: 'Not authorized as admin ❌' });
+        
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) return res.status(400).json({ msg: 'Invalid credentials ❌' });
+        
+        // Create JWT token
+        const token = jwt.sign(
+            { id: user._id, isAdmin: true },
+            process.env.JWT_SECRET || 'your-secret-key',
+            { expiresIn: '1d' }
+        );
+        
+        res.status(200).json({
+            msg: 'Admin login successful ✅',
+            token,
+            user: {
+                id: user._id,
+                fullName: user.fullName,
+                phoneNumber: user.phoneNumber,
+                email: user.email,
+                isAdmin: user.isAdmin
+            }
+        });
+    } catch (err) {
+        console.error('Admin login error:', err);
+        res.status(500).json({ msg: 'Server error ❌' });
+    }
+});
+
+// Validate token endpoint (should be protected)
+router.get('/validate-token', verifyToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select('-password');
+        if (!user || !user.isAdmin) {
+            return res.status(403).json({ msg: 'Not authorized ❌' });
+        }
+        res.json({ user });
+    } catch (err) {
+        res.status(500).json({ msg: 'Server error ❌' });
+    }
+});
+
+// Protect all other admin routes with verifyToken middleware
+router.use(verifyToken);
+
 // GET all users (for admin dashboard)
 router.get('/users', async (req, res) => {
-  try {
-    const users = await User.find({}, '-password'); // this excludes the password pretty cool
-    res.status(200).json(users);
-  } catch (err) {
-    res.status(500).json({ msg: 'Server error while trying to fetch users fetching users' });
-  }
+    try {
+        const users = await User.find({}, '-password');
+        res.status(200).json(users);
+    } catch (err) {
+        res.status(500).json({ msg: 'Server error while trying to fetch users' });
+    }
 });
 
 // Approving user and assigning ticket
@@ -26,7 +98,7 @@ router.put('/approve/:id', async (req, res) => {
     const user = await User.findByIdAndUpdate(
       userId,
       { isPaid: true, ticket: ticketId },
-      { new: true }
+      { new: true }//false
     );
 
     if (!user) return res.status(404).json({ msg: 'User not found' });
@@ -50,16 +122,7 @@ router.put('/approve/:userId',async (req,res) =>{
 
     if(!user) return res.status(404).json({msg:'User not found'})
 
-      await sendEmail(
-        user.email,
-        'Your confference ticket',
-        `<p>Hello ${user.fullName},
-        <p>Thank you for registering and paying for the confference</p>
-        <p>Your ticker number is <strong>${user.ticket}</strong></p>
-        <p>See you soon!</p>
-        </p>`
-        
-      )
+ 
 
       res.status(200).json({msg:'User has been approved and assigned ✅',user})
   } catch (err){
@@ -134,5 +197,78 @@ router.get('/ticketPDF/:userId',async (req,res)=>{
   }
 })
 
+// Set user as admin (protected route - only super admin can do this)
+router.put('/set-admin/:userId', async (req, res) => {
+    try {
+        const user = await User.findByIdAndUpdate(
+            req.params.userId,
+            { isAdmin: true },
+            { new: true }
+        ).select('-password');
+        
+        if (!user) return res.status(404).json({ msg: 'User not found ❌' });
+        
+        res.status(200).json({ 
+            msg: 'User has been set as admin ✅',
+            user 
+        });
+    } catch (err) {
+        console.error('Set admin error:', err);
+        res.status(500).json({ msg: 'Server error ❌' });
+    }
+});
+
+// Remove admin status
+router.put('/remove-admin/:userId', async (req, res) => {
+    try {
+        const user = await User.findByIdAndUpdate(
+            req.params.userId,
+            { isAdmin: false },
+            { new: true }
+        ).select('-password');
+        
+        if (!user) return res.status(404).json({ msg: 'User not found ❌' });
+        
+        res.status(200).json({ 
+            msg: 'Admin status has been removed ✅',
+            user 
+        });
+    } catch (err) {
+        console.error('Remove admin error:', err);
+        res.status(500).json({ msg: 'Server error ❌' });
+    }
+});
+
+// Get user ID by phone number
+router.get('/user-by-phone/:phoneNumber', async (req, res) => {
+    try {
+        const user = await User.findOne({ phoneNumber: req.params.phoneNumber })
+            .select('_id fullName phoneNumber email isAdmin');
+        
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found ❌' });
+        }
+        
+        res.status(200).json({ user });
+    } catch (err) {
+        console.error('Error finding user:', err);
+        res.status(500).json({ msg: 'Server error ❌' });
+    }
+});
+
+// Delete user
+router.delete('/delete/:id', async (req, res) => {
+    try {
+        const user = await User.findByIdAndDelete(req.params.id);
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found ❌' });
+        }
+        res.status(200).json({ msg: 'User deleted successfully ✅' });
+    } catch (err) {
+        console.error('Delete user error:', err);
+        res.status(500).json({ msg: 'Server error while deleting user ❌' });
+    }
+});
 
 module.exports = router;
+

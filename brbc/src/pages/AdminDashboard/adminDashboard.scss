@@ -1,0 +1,91 @@
+@use "sass:color";
+
+.admin-dashboard-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #000000 0%, #f90101 100%);
+    color: white; // Default text color for readability
+    padding: 2rem;
+
+    h1, h2, h3, h4, h5, h6 {
+        color: white; // Ensure headings are white
+    }
+
+    // Add styles for other typography elements if needed
+    .MuiTypography-root {
+        color: white;
+    }
+
+    // Adjust link color if needed
+    a {
+        color: #6da2d6; // Use a contrasting color for links
+    }
+
+    // Style for the Paper component used in the dashboard
+    .MuiPaper-root {
+        background: linear-gradient(-100deg, #b61f1f 0%, #5b0303 100%);
+        color: white; // Ensure text within Paper is readable
+    }
+
+    // Style for the TableContainer if used
+    .MuiTableContainer-root {
+        background: linear-gradient(-100deg, #b61f1f 0%, #5b0303 100%);
+        color: white; // Ensure text within TableContainer is readable
+    }
+
+    // Style for TableHead if used
+    .MuiTableHead-root {
+        background-color: rgba(0, 0, 0, 0.5); // Slightly darker header for contrast
+        .MuiTableCell-root {
+            color: white; // Ensure table headers are white
+        }
+    }
+
+     // Style for TableBody if used
+     .MuiTableBody-root {
+        .MuiTableRow-root {
+            &:nth-of-type(odd) {
+                background-color: rgba(255, 255, 255, 0.05); // Subtle stripe for rows
+            }
+        }
+        .MuiTableCell-root {
+            color: white; // Ensure table cells are white
+        }
+     }
+
+     // Style for text fields if used
+     .MuiTextField-root {
+         .MuiInputBase-input {
+             color: white; // Input text color
+         }
+         .MuiInputLabel-root {
+             color: rgba(255, 255, 255, 0.7); // Input label color
+         }
+         .MuiOutlinedInput-notchedOutline {
+            border-color: rgba(255, 255, 255, 0.5); // Input border color
+         }
+         &:hover .MuiOutlinedInput-notchedOutline {
+            border-color: rgba(255, 255, 255, 0.7); // Input border hover color
+         }
+         &.Mui-focused .MuiOutlinedInput-notchedOutline {
+            border-color: white; // Input border focused color
+         }
+     }
+
+     // Style for buttons if needed
+     .MuiButton-root {
+         &.MuiButton-contained.MuiButton-colorPrimary {
+             background-color: #b61a2a; // Example button color
+             color: white;
+             &:hover {
+                 background-color: color.adjust(#b61a2a, $lightness: -10%);
+             }
+         }
+         &.MuiButton-outlined.MuiButton-colorError {
+             color: #dc3545; // Example button color
+             border-color: #dc3545;
+             &:hover {
+                 background-color: rgba(220, 53, 69, 0.1);
+             }
+         }
+     }
+}

@@ -1,0 +1,45 @@
+.form {
+    justify-content: center;
+    margin-top: 7%;
+   }
+   
+   .MuiTextField-root {
+     background-color: white;
+   }
+   
+   .siginInMessage{
+     font-size: 8px;
+   }
+   
+.signin-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #000000 0%, #f90101 100%);
+    color: white; // Default text color for readability
+
+    .formContainer {
+      background: linear-gradient(-100deg, #b61f1f 0%, #5b0303 100%);
+      color: white; // Ensure form text is readable
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        color: white; // Ensure headings are white
+    }
+
+    // Add styles for other typography elements if needed
+    .MuiTypography-root {
+        color: white;
+    }
+
+    // Adjust link color if needed
+    a {
+        color: #6da2d6; // Use a contrasting color for links
+    }
+}
+   

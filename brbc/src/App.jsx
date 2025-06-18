@@ -1,17 +1,32 @@
-import React from 'react'
-import LandingPage from './pages/landingPage/LandingPage'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+// src/App.jsx
+import { Routes, Route } from 'react-router-dom';
+import AdminDashboard from './pages/AdminDashboard/AdminDashboard';
+import LandingPage from './pages/landingPage/LandingPage';
+import Signup from './pages/Signup/Signup';
+import ViewTicket from './pages/ViewTicket/ViewTicket';
+import Signin from './pages/Signin/Signin';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
+import { AuthProvider } from './context/AuthContext';
 
-
-
-const App = () => {
+function App() {
   return (
-    <Router>
+    <AuthProvider>
       <Routes>
-        <Route path = '/' element={<LandingPage/>}/>
+        <Route path="/admin" element={<ProtectedRoute requireAdmin={true}><AdminDashboard /></ProtectedRoute>} />
+        <Route path="/" element={<LandingPage/>} />
+        <Route path="/signup" element={<Signup/>} />
+        <Route 
+          path="/viewTicket" 
+          element={
+            <ProtectedRoute>
+              <ViewTicket />
+            </ProtectedRoute>
+          } 
+        />
+        <Route path="/signin" element={<Signin/>} />
       </Routes>
-    </Router>
-  )
+    </AuthProvider>
+  );
 }
 
-export default App
+export default App;

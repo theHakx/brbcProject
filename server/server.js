@@ -11,7 +11,7 @@ app.use(express.json());
 
 // Importationof Routes/////////////////////////////////////
 const userRoutes = require('./routes/userRoutes'); 
-app.use('/api', userRoutes); 
+app.use('/api/user', userRoutes); 
 
 const conferenceInfo = require('./routes/conferenceRoutes')
 app.use('/api/conference',conferenceInfo)
@@ -19,10 +19,14 @@ app.use('/api/conference',conferenceInfo)
 const adminRoutes = require('./routes/adminRoutes')
 app.use('/api/admin',adminRoutes)
 
+
+
 // Test Route
 app.get('/', (req, res) => {
   res.send('MongoDB connected ✅');
 });
+
+
 
 // MongoDB + Server Listen
 const PORT = process.env.PORT || 5000;

@@ -1,0 +1,84 @@
+@use "sass:color";
+
+.view-ticket-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #000000 0%, #f90101 100%);
+    color: white; // Default text color for readability
+    padding: 2rem;
+
+    .ticket-container {
+      background: linear-gradient(-100deg, #b61f1f 0%, #5b0303 100%);
+      color: white; // Ensure ticket text is readable
+      padding: 3rem 2rem; // Increased padding for more space
+      border-radius: 12px; // Slightly more rounded corners
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5); // Stronger shadow
+      max-width: 600px;
+      width: 100%;
+      text-align: left; // Align text to the left for readability
+
+      .MuiTypography-root {
+          color: rgba(255, 255, 255, 0.9); // Slightly softer white for text
+          line-height: 1.5; // Improved line spacing
+
+          strong {
+              color: white; // Make labels pure white for emphasis
+              font-weight: 700; // Ensure bold labels
+              margin-right: 0.5rem; // Space between label and value
+          }
+      }
+
+      h4.MuiTypography-root, h5.MuiTypography-root {
+          color: white; // Ensure headings are pure white
+          text-align: center; // Center headings
+          margin-bottom: 2rem; // More space below headings
+      }
+
+      // Adjust spacing and add clear dividers within the grid
+      .MuiGrid-container {
+          margin-top: 0;
+          margin-bottom: 1.5rem; // Space below the grid container
+
+           // Add bottom border to each row of information (pairs of grid items)
+          & > .MuiGrid-item {
+               padding: 0.75rem 0 !important; // Consistent vertical padding
+               border-bottom: 1px solid rgba(255, 255, 255, 0.15); // Clearer separator line
+           }
+
+           // Remove border from the last two grid items (last row)
+           & > .MuiGrid-item:nth-last-of-type(1),
+           & > .MuiGrid-item:nth-last-of-type(2) {
+               border-bottom: none;
+               padding-bottom: 0.75rem !important; // Maintain padding
+           }
+      }
+
+      // Style for the Download button
+      .MuiButton-root {
+          margin-top: 2rem; // Space above the button
+          background-color: #0d6efd; // A standard blue for buttons
+          color: white;
+          padding: 0.75rem 1.5rem;
+          border-radius: 8px;
+          font-size: 1rem;
+          &:hover {
+              background-color: color.adjust(#0d6efd, $lightness: -10%);
+          }
+      }
+    }
+
+    // Add styles for other typography elements if needed
+    .MuiTypography-root {
+        color: white;
+    }
+
+    // Adjust link color if needed
+    a {
+        color: #6da2d6; // Use a contrasting color for links
+    }
+}
+
+// Responsive adjustments if necessary (can add media queries here)
